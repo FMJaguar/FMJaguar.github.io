@@ -1,0 +1,315 @@
+<!--
+
+9/6.2 - can no longer drag pieces off of the board
+- furthermore for any invalid move, the piece animates back to it's original position, since capturing is not implemented, pieces can only move to empty squares
+
+9/6 - fixed drag/drop to not drag entire cell, outline fixed, dark cells lightened
+
+-ios needs a seperate touch event handler, will not work with current ui events
+-you can drag pieces off of the board, but dragging one piece back onto the board resets them all
+-ugly code
+-when pieces are captured they disappear and become inaccessible
+
+9/5 - added svg mime type to apache, added svg board, pieces still raster, added generic drag/drop
+issues - 
+does not display correctly on ipad
+pieces have white outline which makes black pieces visible and white pieces hard to see
+ipad touch event scrolls screen, does not drag/drop (http://forum.jquery.com/topic/drag-and-drop-on-the-iphone-ipod)
+
+todo
+-------------
+create rooms
+save board state
+create players
+
+-->
+  
+<style>
+.stone{
+  float:left;
+  background-image:url('./stone.png');
+  width:50;
+  height:50;
+  z-index:9999;
+}
+.tray{
+  height:50px;
+  width:800px;
+  border:1px solid silver;
+}
+
+#boardContainer{
+  position:relative;
+}
+
+#output{
+  min-width:808px;
+  width:808px;
+  height:808px;
+  border:0px;
+}
+
+#board{
+  min-width:808px;
+  min-height:808px;
+  width:808px;
+  height:808px;
+  border:0px;
+  top:0;
+  left:0;
+  position:absolute;
+}
+
+#pieceContainer{
+  min-width:808px;
+  min-height:808px;
+  width:808px;
+  height:808px;
+  border:0px;
+  top:0;
+  left:0;
+  position:absolute;
+}
+
+.cell{
+  width:100px;
+  height:100px;
+  border:0px;
+  float:left;
+}
+
+.cell-even{
+  background-color:#dddddd;
+}
+
+.cell-odd{
+  background-color:white;
+}
+
+.cell-active{
+  background-color:lightblue;
+}
+
+.cell-hover{
+  background-color:lightgreen;
+}
+
+.piece{
+  width:100px;
+  height:100px;
+  border:0px;
+  float:left;
+  z-index:9999;
+}
+
+.piece-wp{
+  background-image:url('./wp.png');
+}
+
+.piece-wr{
+  background-image:url('./wr.png');
+}
+
+.piece-wn{
+  background-image:url('./wn.png');
+}
+
+.piece-wb{
+  background-image:url('./wb.png');
+}
+
+.piece-wk{
+  background-image:url('./wk.png');
+}
+
+.piece-wq{
+  background-image:url('./wq.png');
+}
+
+.piece-bp{
+  background-image:url('./bp.png');
+}
+
+.piece-br{
+  background-image:url('./br.png');
+}
+
+.piece-bn{
+  background-image:url('./bn.png');
+}
+.piece-bb{
+  background-image:url('./bb.png');
+}
+
+.piece-bk{
+  background-image:url('./bk.png');
+}
+
+.piece-bq{
+  background-image:url('./bq.png');
+}
+
+</style>
+
+<script type="text/javascript" src="ba-debug.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
+
+<div style="clear:both"></div>
+
+<div id="blackTrayContianer" class="tray">
+  <div id="blackTray" class="tray"></div>
+</div>
+
+<div style="clear:both"></div>
+
+<div id="boardContainer">
+  <div id="output">
+  </div>
+  <div id="board">
+  </div>
+  <div id="pieceContainer">
+  </div>
+</div>
+
+<div style="clear:both"></div>
+
+<div id="whiteTrayContianer" class="tray">
+  <div id="whiteTray" class="tray"></div>
+</div>
+
+<div style="clear:both"></div>
+
+<div id="info">
+  <div id="gameInfo"></div>
+  <div id="moveInfo"></div>
+  <div id="moveControls"></div>
+</div>
+
+
+<script>
+$(document).ready(function() {
+
+  //var board = {};
+  var game = {};
+  game.movedata = [];
+  game.movedata[0] = [
+  ['br','bn','bb','bk','bq','bb','bn','br'],
+  ['bp','bp','bp','bp','bp','bp','bp','bp'],
+  [0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0],
+  ['wp','wp','wp','wp','wp','wp','wp','wp'],
+  ['wr','wn','wb','wk','wq','wb','wn','wr']
+  ];
+  game.whiteStones = 5;
+  game.blackStones = 6;  
+
+  var setupEvents = function(game){
+      data = game.movedata[0];
+	    $(".piece").draggable({ revert: true });
+	    $(".stone").draggable({ revert: true });	    
+	    $(".cell").droppable({
+	      accept:".piece",
+	      activeClass:'cell-active',
+	      hoverClass:'cell-hover',
+	      drop: function(ev,ui){
+	        var row = $(ev.target).data('row');
+	        var col = $(ev.target).data('col');
+	        var oldrow = ui.draggable.data('row');
+	        var oldcol = ui.draggable.data('col');
+	        var type = ui.draggable.data('type');
+	        
+	        if (data[row][col] !== 0){ //there is a piece here
+	          return false; //later change to capture
+	        }
+          console.log("Moving "+type+" from "+oldrow+","+oldcol+" to "+row+","+col);
+	        data[oldrow][oldcol] = 0;
+	        data[row][col] = type;
+	        refreshPieces(data);
+	        return true;
+	      }
+      });  
+  }
+  
+  
+  var setup = function(game){
+        refreshBoard(game.movedata[0]);
+        refreshPieces(game.movedata[0]);
+        refreshInfo(game);
+        refreshStones(game);
+    };
+
+  var refreshBoard = function(data){
+    var output = $('#board');
+    $.each(data,function(idx){
+      $.each(data[idx],function(i){
+        var content = data[idx][i];
+        //make cell bg
+        var cell = $("<div class='cell'></div>");
+        cell.data('cell', idx+""+i);
+        cell.data('row', idx);
+        cell.data('col', i);
+        var cls;
+        ((i+idx) % 2 == 0) ? cls = 'even' : cls = 'odd';
+        cell.addClass("cell-"+cls);            
+        $('#board').append(cell);
+      });
+    });
+  };
+  
+  var refreshPieces = function(data){
+    $('#pieceContainer').html('');
+    $.each(data,function(idx){
+    $.each(data[idx],function(i){      
+      var content = data[idx][i];
+      var piece = $("<div class='piece'>"+content+"</div>");
+      piece.data('type', content);
+      piece.data('cell', idx+""+i);
+      piece.data('row', idx);
+      piece.data('col',i);
+      if (content !== 0){
+        piece.addClass("piece-"+content);
+        $('#pieceContainer').append(piece);
+      }else{
+        piece.addClass("piece-empty");
+        $('#pieceContainer').append(piece);
+      };
+      
+    });
+    setupEvents(game);
+    drawMoveControls();
+    });
+  };
+  
+  var refreshInfo = function(game){
+    var totalmoves = game.movedata.length;
+    $('#gameInfo').html('Game Id:');
+    $('#moveInfo').html('Move #:'+totalmoves);
+  }
+  
+  var drawMoveControls = function(){
+    var output = $('#moveControls');
+    output.html('<a id="prevMove" href="">Previous Move</a> | Move X of Y | <a  id="nextMove" href="">Next Move</a>');
+  }
+  
+  var refreshStones = function(game){
+    for (var i = 1; i <= game.whiteStones; i++)
+       {
+           var output = $('#whiteTray');
+           var h = output.html();
+           output.html(h+"<div class='stone' data-stone='"+i+"'>&nbsp;</div>");
+       }
+    for (var i = 1; i <= game.blackStones; i++)
+       {
+           var output = $('#blackTray');
+           var h = output.html();
+           output.html(h+"<div class='stone' data-stone='"+i+"'>&nbsp;</div>");  
+       }
+  }
+
+  setup(game);
+  setupEvents(game);
+});
+</script>

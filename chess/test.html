@@ -1,0 +1,120 @@
+<style>
+
+#output{
+  width:900px;
+  height:900px;
+  border:1px solid silver;
+}
+
+
+.cell{
+  width:100px;
+  height:100px;
+  border:1px solid black;
+  float:left;
+}
+
+.cell-even{
+  background-color:#FFFFFF;
+}
+
+
+.cell-odd{
+  background-color:#CCCCCC;
+}
+
+.piece-wp{
+  background-image:url('./wp.png');
+}
+
+.piece-wr{
+  background-image:url('./wr.png');
+}
+
+.piece-wn{
+  background-image:url('./wn.png');
+}
+
+.piece-wb{
+  background-image:url('./wb.png');
+}
+
+.piece-wk{
+  background-image:url('./wk.png');
+}
+
+.piece-wq{
+  background-image:url('./wq.png');
+}
+
+.piece-bp{
+  background-image:url('./bp.png');
+}
+
+.piece-br{
+  background-image:url('./br.png');
+}
+
+.piece-bn{
+  background-image:url('./bn.png');
+}
+
+.piece-bb{
+  background-image:url('./bb.png');
+}
+
+.piece-bk{
+  background-image:url('./bk.png');
+}
+
+.piece-bq{
+  background-image:url('./bq.png');
+}
+
+</style>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
+
+test
+
+<div id="output">
+</div>
+
+test
+
+
+<script>
+var board = {};
+
+board.data = [
+['br','bn','bb','bk','bq','bb','bn','br'],
+['bp','bp','bp','bp','bp','bp','bp','bp'],
+[0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0],
+['wp','wp','wp','wp','wp','wp','wp','wp'],
+['wr','wn','wb','wk','wq','wb','wn','wr']
+]
+
+
+
+board.render = function(output){
+
+      $.each(board.data,function(idx){
+          $.each(board.data[idx],function(i){
+            var cell = $("<div class='cell'>"+board.data[idx][i]+"</div>");
+            var cls;
+            ((i+idx) % 2 == 0) ? cls = 'even' : cls = 'odd';
+            cell.addClass("cell-"+cls);            
+            cell.addClass("piece-"+board.data[idx][i]);
+            output.append(cell);        
+          });
+          output.append('<div style="clear:both"></div>');
+      })
+}
+
+board.render($('#output'));
+
+</script>
