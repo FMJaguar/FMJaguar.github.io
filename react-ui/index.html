@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv='Content-type' content='text/html; charset=utf-8'>
+    <title>Basic Example with external JSX</title>
+    <link rel="stylesheet" href="css/base.css" />
+    <script src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script src="http://fb.me/react-0.8.0.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.8.0.js"></script>
+	<style>
+		html,body {
+			margin: 0;
+			padding: 0;
+		}
+
+		.container {
+			background-color:red;
+		}
+
+		.window {
+			background-color:gold;
+		}
+		.header {
+			background-color:blue;
+		}
+		.footer {
+			position: absolute;
+			bottom: 0;
+			background-color:blue;
+		}
+	</style>
+  </head>
+  <body>
+    <div id="container">
+    </div>
+    <script type="text/jsx" src="scripts/example.js"></script>
+  </body>
+</html>
