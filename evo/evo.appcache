@@ -1,0 +1,13 @@
+CACHE MANIFEST
+#1.13
+./css/ratchet.css
+./js/jquery-2.1.1.min.js
+./js/underscore.js
+./js/backbone-min.js
+./js/react-with-addons.js
+./js/backbone-react-component-min.js
+./js/JSXTransformer.js
+./js/player_model.js
+./js/ratchet.min.js
+./js/ui/form.js
+./players.js
