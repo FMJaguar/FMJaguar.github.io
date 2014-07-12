@@ -1,4 +1,5 @@
 /** @jsx React.DOM */
+
 var Container = React.createClass({
 	mixins : [Backbone.React.Component.mixin],
 	render : function () {

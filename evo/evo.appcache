@@ -9,5 +9,5 @@ CACHE MANIFEST
 ./js/JSXTransformer.js
 ./js/player_model.js
 ./js/ratchet.min.js
-./js/ui/form.js
+./js/dist/form.js
 ./players.js
